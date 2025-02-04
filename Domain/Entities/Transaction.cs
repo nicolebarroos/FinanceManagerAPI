@@ -22,10 +22,10 @@ namespace FinanceManagerAPI.Domain.Entities {
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("UserId")]
-        public virtual User User { get; set; } //representa o relacionamento com a entidade Category.
+        public virtual User? User { get; set; } //representa o relacionamento com a entidade Category.
 
         [ForeignKey("CategoryId")]
-        public virtual Category Category { get; set; }
+        public virtual Category? Category { get; set; }
     }
 
     public enum TransactionType {
