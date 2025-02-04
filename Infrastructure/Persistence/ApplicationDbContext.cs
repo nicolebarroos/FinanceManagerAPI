@@ -19,6 +19,10 @@ namespace FinanceManagerAPI.Infrastructure.Persistence {
                 .HasOne(t => t.Category)
                 .WithMany(c => c.Transactions)
                 .HasForeignKey(t => t.CategoryId);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 }
