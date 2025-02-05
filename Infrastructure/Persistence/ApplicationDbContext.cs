@@ -1,6 +1,11 @@
 using FinanceManagerAPI.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
+//ApplicationDbContext gerencia a conexão com o banco usando o Entity Framework Core.
+//Cada modelo precisa ser registrado com DbSet<T>.
+//Configura relacionamentos (One-to-Many, Many-to-Many) e regras (Email único).
+//A string de conexão é configurada no Program.cs para conectar ao PostgreSQL.
+
 namespace FinanceManagerAPI.Infrastructure.Persistence {
     public class ApplicationDbContext : DbContext {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
