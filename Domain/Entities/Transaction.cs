@@ -26,6 +26,10 @@ namespace FinanceManagerAPI.Domain.Entities {
 
         [ForeignKey("CategoryId")]
         public virtual Category? Category { get; set; }
+
+        [Required]
+        [MaxLength(255)]
+        public string Description { get; set; } = string.Empty;
     }
 
     public enum TransactionType {
