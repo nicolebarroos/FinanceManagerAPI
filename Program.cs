@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Text.Json.Serialization;
+using FinanceManagerAPI.Infrastructure.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 

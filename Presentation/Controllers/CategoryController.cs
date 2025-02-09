@@ -14,7 +14,7 @@ namespace FinanceManagerAPI.Presentation.Controllers {
             _dbContext = dbContext;
         }
 
-        // 🔥 Criar uma nova categoria
+        //Criar uma nova categoria
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateCategory([FromBody] Category category) {
@@ -23,7 +23,7 @@ namespace FinanceManagerAPI.Presentation.Controllers {
             return Ok(new { message = "Categoria criada com sucesso!", category });
         }
 
-        // 🔥 Listar todas as categorias
+        //Listar todas as categorias
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetCategories() {
