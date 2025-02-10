@@ -18,7 +18,46 @@ using Xunit;
 //Define o "grupo" do código. Aqui, todos os testes estarão dentro de FinanceManagerAPI.Tests.
 namespace FinanceManagerAPI.Tests {
     //Cria uma "caixa" chamada TransactionControllerTests, onde vamos colocar nossos testes.
-    public class TransactionControllerTests {
+    public class TransactionControllerTests : IDisposable {
+        //Cria um banco de dados falso compartilhado entre os testes.
+        private readonly ApplicationDbContext _dbContext;
+        //Aqui declaramos a variável _controller, que será do tipo TransactionController
+        private readonly TransactionController _controller;
+
+        //Construtor: será chamado antes de cada teste.
+        public TransactionControllerTests() {
+            _dbContext = GetDbContext();
+            //Aqui estamos chamando a função GetControllerWithUser, que cria um TransactionController já configurado com um usuário autenticado.
+            _controller = GetControllerWithUser(_dbContext);
+
+            // Criando a categoria para todas as transações
+            _dbContext.Categories.Add(new Category { Id = 1, Name = "Alimentação" });
+
+            // Criando algumas transações que serão usadas nos testes
+            _dbContext.Transactions.Add(new Transaction {
+                Amount = 200,
+                Type = TransactionType.Income,
+                CategoryId = 1,
+                UserId = 1
+            });
+
+            _dbContext.Transactions.Add(new Transaction {
+                Amount = 500,
+                Type = TransactionType.Expense,
+                CategoryId = 1,
+                UserId = 1
+            });
+
+            _dbContext.Transactions.Add(new Transaction {
+                Amount = 300,
+                Type = TransactionType.Income,
+                CategoryId = 1,
+                UserId = 2 // Usuário diferente
+            });
+
+            _dbContext.SaveChanges();
+        }
+
         //Cria um banco de dados falso (TestDb) para os testes rodarem sem precisar de um banco real.
         private ApplicationDbContext GetDbContext() {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -55,17 +94,11 @@ namespace FinanceManagerAPI.Tests {
 
             return controller;
         }
+
         //O atributo [Fact] indica um método de teste que é executado pelo executor de teste
         [Fact]
         public async Task CreateTransaction_Should_Return_Success() {
-            // Arrange
-            var dbContext = GetDbContext();
-            var controller = GetControllerWithUser(dbContext);
-
-            // Adicionando uma categoria válida para garantir que ela exista no banco
-            dbContext.Categories.Add(new Category { Id = 1, Name = "Alimentação" });
-            await dbContext.SaveChangesAsync();
-
+            // Criando uma nova transação
             var transaction = new Transaction {
                 Amount = 100,
                 Type = TransactionType.Expense,
@@ -73,12 +106,30 @@ namespace FinanceManagerAPI.Tests {
             };
 
             //Executando o Código (Act)
-            var result = await controller.CreateTransaction(transaction);
+            var result = await _controller.CreateTransaction(transaction);
             var okResult = result as OkObjectResult;
 
             // Assert
             Assert.NotNull(okResult);
             Assert.Equal(200, okResult.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetTransactions_Should_Return_Success() {
+            //Executar a ação (Chamar o método do controller)
+            var result = await _controller.GetTransactions();
+            var okResult = result as OkObjectResult;
+            var transactions = okResult?.Value as List<Transaction>;
+
+            // Verificar os resultados (Assert)
+            Assert.NotNull(transactions);  // Garante que não é nulo
+            Assert.Equal(2, transactions.Count); // Retorna apenas as transações do usuário autenticado (UserId = 1)
+        }
+
+        // Limpa o banco após os testes
+        public void Dispose() {
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Dispose();
         }
     }
 }
