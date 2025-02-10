@@ -126,6 +126,55 @@ namespace FinanceManagerAPI.Tests {
             Assert.Equal(2, transactions.Count); // Retorna apenas as transações do usuário autenticado (UserId = 1)
         }
 
+        [Fact]
+        public async Task GetTransaction_Should_Return_Correct_Transaction() {
+            var result = await _controller.GetTransaction(1); // Buscando uma transação já criada no construtor
+            var okResult = result as OkObjectResult;
+            var returnedTransaction = okResult?.Value as Transaction;
+
+            Assert.NotNull(returnedTransaction); 
+            Assert.Equal(1, returnedTransaction.Id);
+        }
+
+        [Fact]
+        public async Task UpdateTransaction_Should_Return_Success() {
+            //Criar um objeto com os novos dados da transação
+            var updatedTransaction = new Transaction {
+                Amount = 350, // Novo valor
+                Type = TransactionType.Income, // Novo tipo
+                CategoryId = 1, // Mesma categoria
+                Description = "Atualizado" // Nova descrição
+            };
+
+            //Executar a ação (Chamar o método do controller para atualizar a transação ID = 1)
+            var result = await _controller.UpdateTransaction(1, updatedTransaction);
+            var okResult = result as OkObjectResult;
+
+            //Verificar os resultados (Assert)
+            Assert.NotNull(okResult);
+            Assert.Equal(200, okResult.StatusCode);
+
+            // Buscar a transação atualizada no banco e validar os novos dados
+            var transactionInDb = await _dbContext.Transactions.FindAsync(1);
+            Assert.NotNull(transactionInDb);
+            Assert.Equal(350, transactionInDb.Amount); // Verifica se o valor foi atualizado
+            Assert.Equal(TransactionType.Income, transactionInDb.Type); // Verifica se o tipo foi atualizado
+            Assert.Equal("Atualizado", transactionInDb.Description); // Verifica a nova descrição
+        }
+
+        [Fact]
+        public async Task DeleteTransaction_Should_Return_Success() {
+            //Executar a ação (Chamar o método do controller para deletar a transação ID = 1)
+            var result = await _controller.DeleteTransaction(1);
+            var okResult = result as OkObjectResult;
+
+            Assert.NotNull(okResult);
+            Assert.Equal(200, okResult.StatusCode);
+
+            var transactionInDb = await _dbContext.Transactions.FindAsync(1);
+            Assert.Null(transactionInDb); // Se a transação foi removida, deve ser null
+        }
+
         // Limpa o banco após os testes
         public void Dispose() {
             _dbContext.Database.EnsureDeleted();
