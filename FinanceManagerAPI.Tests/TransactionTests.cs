@@ -23,6 +23,7 @@ namespace FinanceManagerAPI.Tests {
         private readonly ApplicationDbContext _dbContext;
         //Aqui declaramos a variável _controller, que será do tipo TransactionController
         private readonly TransactionController _controller;
+        
 
         //Construtor: será chamado antes de cada teste.
         public TransactionControllerTests() {
@@ -31,7 +32,7 @@ namespace FinanceManagerAPI.Tests {
             _controller = GetControllerWithUser(_dbContext);
 
             // Criando a categoria para todas as transações
-            _dbContext.Categories.Add(new Category { Id = 1, Name = "Alimentação" });
+            _dbContext.Categories.Add(new Category {Name = "Alimentação" });
 
             // Criando algumas transações que serão usadas nos testes
             _dbContext.Transactions.Add(new Transaction {
